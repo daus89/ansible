@@ -1,0 +1,24 @@
+---
+- name: Configure SElinux for Apache, PHP and mysql
+  hosts: myhosts
+  become: yes
+
+  tasks:
+   - name: Allow Apache to connect to network
+     ansible.posix.seboolean:
+      name: httpd_can_network_connect
+      state: true
+      persistent: true
+
+   - name: Allow Apache to write to home directories
+     ansible.posix.seboolean:
+      name: httpd_enable_homedirs
+      state: true
+      persistent: true
+
+   - name: Allow Apache to connect to db_servers
+     ansible.posix.seboolean:
+       name: httpd_can_network_connect_db
+       state: true
+       persistent: true
+

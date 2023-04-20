@@ -1,0 +1,32 @@
+---
+- name: Install and configure MySQL server
+  hosts: db_servers
+  become: true
+
+  vars:
+    mysql_root_password: "your_root_password_here"
+
+  tasks:
+    - name: Install MySQL server
+      ansible.builtin.dnf:
+        name: mysql-server
+        state: present
+
+    - name: Start MySQL service
+      service:
+        name: mysql
+        state: started
+
+    - name: Secure MySQL installation
+      expect:
+        command: mysql_secure_installation
+        responses:
+          'Enter current password for root (enter for none): ': "\r"
+          'Set root password? [Y/n]': "Y\r"
+          'New password: ': "{{ mysql_root_password }}\r"
+          'Re-enter new password: ': "{{ mysql_root_password }}\r"
+          'Remove anonymous users? [Y/n]': "Y\r"
+          'Disallow root login remotely? [Y/n]': "Y\r"
+          'Remove test database and access to it? [Y/n]': "Y\r"
+          'Reload privilege tables now? [Y/n]': "Y\r"
+      become: true

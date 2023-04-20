@@ -1,0 +1,16 @@
+---
+- name: Install mariadb-server and phyton module
+  hosts: your_host
+  become: true
+
+  tasks:
+  - name: Install mariadb-server
+    ansible.builtin.dnf:
+     name: mariadb-server
+     state: present
+
+  - name: Install pyhton2 module
+    ansible.builtin.dnf:
+     name: python2-PyMySQL
+     state: present
+     

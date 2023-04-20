@@ -1,0 +1,39 @@
+---
+- name: Check and apply updates on CentOS servers
+  hosts: dnf
+  gather_facts: yes
+
+  tasks:
+    - name: Update package cache
+      ansible.builtin.dnf:
+        update_cache: yes
+
+    - name: Check for available updates
+      ansible.builtin.dnf:
+        list: updates
+      register: update_results
+
+    - name: Apply updates
+      ansible.builtin.dnf:
+        name: "*"
+        state: latest
+      register: result
+
+  handlers:
+    - name: Send email notification
+      #include_vars:
+         #file: sendmail2.yml
+      mail:
+      #debug:
+        var: sendmail2.yml
+        subject: "CentOS server update status"
+        body: |
+          The following servers were updated successfully:
+          {% for host in result.changed %}
+          - {{ host }}
+          {% endfor %}
+
+          \The following servers failed to update:
+          {% for host in result.failed %}
+          - {{ host }}
+          {% endfor %}

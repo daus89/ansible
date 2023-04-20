@@ -1,0 +1,36 @@
+---
+- name: Install and configure Mariadb Server
+  hosts: db_servers
+  become: true
+
+  vars:
+    mariadb_secure_user: "mariadb user"
+    mariadb_root_password: "your_root_password_here"
+  
+  tasks:
+    - name: Start MariaDB
+      ansible.builtin.systemd:
+        name: mariadb
+        state: started
+        enabled: true
+      become: true
+
+    - name: Secure MariaDB
+      mysql_user:
+        name: "{{ mariadb_secure_user }}"
+        password: "{{ mariadb_secure_password }}"
+        priv: "*.*:ALL,GRANT"
+        host: "localhost"
+      become: true
+
+    - name: Remove anonymous user, test database, and remote root login
+      mysql_db:
+        state: absent
+        name: "test"
+      become: true
+
+    - name: Reload privileges
+      mysql_db:
+        name: ""
+        state: flush privileges
+      become: true

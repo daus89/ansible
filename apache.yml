@@ -1,0 +1,21 @@
+---
+- name: Setting Up Apache Mariadb
+  hosts: dnf
+  become: yes
+  tasks:
+          - name: Install latest version of package required
+            ansible.builtin.dnf:
+                  name: 
+                        - httpd
+                        - mariadb-server
+                        - php*
+                         
+                  state: latest
+
+          - name: Enabled and run httpd 
+            ansible.builtin.systemd: 
+              name: httpd
+             #enabled: yes
+              state: started
+            
+

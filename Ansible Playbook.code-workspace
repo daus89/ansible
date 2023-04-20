@@ -1,0 +1,12 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"name": "ansible",
+			"path": "../github/ansible"
+		}
+	],
+	"settings": {}
+}

@@ -1,0 +1,42 @@
+---
+- name: Install and configure phpmyadmin
+  hosts: your_host
+  become: true
+  vars:
+    phpmyadmin_db_name: myphpadmin
+    phpmyadmin_db_user: myphpadminuser
+    phpmyadmin_db_password: your_password
+
+  tasks:
+   - name: Install epel repository
+     ansible.builtin.dnf:
+      name: epel-release
+      state: present
+
+   - name: Install phpmyadmin
+     ansible.builtin.dnf:
+      name: phpmyadmin
+      state: present
+
+   - name: Configure phpmyadmin
+     lineinfile:
+        path: /etc/httpd/conf.d/phpMyAdmin.conf
+        line: "Alias /phpmyadmin /usr/share/phpMyAdmin/"
+        state: present
+        create: yes
+     notify:
+        - restart apache
+
+   - name: Create phpmyadmin DB user
+     mysql_user:
+      name: "{{ phpmyadmin_db_user }}"
+      password: "{{ phpmyadmin_db_password }}"
+      priv: "{{ phpmyadmin_db_name }}.*:ALL"
+      state: present
+     become_user: mysql
+
+  handlers:
+  - name: restart apache
+    service:
+     name: httpd
+     state: restarted

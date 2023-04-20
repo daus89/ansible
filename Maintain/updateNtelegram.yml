@@ -1,0 +1,33 @@
+---
+- name: Check and apply updates on CentOS servers
+  hosts: dnf
+  gather_facts: yes
+
+  tasks:
+    - name: Update package cache
+      ansible.builtin.dnf:
+        update_cache: yes
+
+    - name: Check for available updates
+      ansible.builtin.dnf:
+        list: updates
+      register: update_results
+
+## install updates, skip broken and ignore error and send the result to telegram
+    - name: Apply updates
+      ansible.builtin.dnf:
+        name: "*"
+        state: latest
+        skip_broken: true
+      ignore_errors: true
+      register: result
+     
+
+    - name: Send update status to Telegram
+      telegram:
+       token: 6135997971:AAHatHhqAeSpFN57t5ByWKoYQrbN9W--55o
+       api_args:
+        chat_id: 60082218
+        parse_mode: "markdown"
+        text: "{{ inventory_hostname }} update status {{ result.changed }}"
+    

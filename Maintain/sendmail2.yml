@@ -1,0 +1,23 @@
+---
+- name: Send email using email relay
+  hosts: localhost
+  vars:
+    smtp_server: "postmaster.mygovuc.gov.my"
+    smtp_port: "25"
+    smtp_username: "your-smtp-username"
+    smtp_password: "your-smtp-password"
+    from_email: "your-email@your-domain.com"
+    to_email: "recipient-email@recipient-domain.com"
+    #email_subject: "Test email"
+    #email_body: "This is a test email sent using Ansible"
+  tasks:
+    - name: Send email
+      mail:
+        host: "{{ smtp_server }}"
+        port: "{{ smtp_port }}"
+        username: "{{ smtp_username }}"
+        password: "{{ smtp_password }}"
+        from: "{{ from_email }}"
+        to: "{{ to_email }}"
+        #subject: "{{ email_subject }}"
+        #body: "{{ email_body }}"
