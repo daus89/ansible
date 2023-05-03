@@ -29,5 +29,5 @@
        api_args:
         chat_id: 60082218
         parse_mode: "markdown"
-        text: "{{ inventory_hostname }} update status {{ result.changed }}"
+        text: "{{ inventory_hostname }} update status {{ result.changed }} {{ result.msg }}"
     

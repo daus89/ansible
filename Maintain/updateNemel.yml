@@ -8,10 +8,10 @@
       ansible.builtin.dnf:
         update_cache: yes
 
-    - name: Check for available updates
-      ansible.builtin.dnf:
-        list: updates
-      register: update_results
+    #- name: Check for available updates
+    #  ansible.builtin.dnf:
+    #    list: updates
+    #  register: update_results
 
     - name: Apply updates
       ansible.builtin.dnf:
@@ -32,8 +32,17 @@
           {% for host in result.changed %}
           - {{ host }}
           {% endfor %}
-
+ 
           \The following servers failed to update:
           {% for host in result.failed %}
           - {{ host }}
           {% endfor %}
+
+      #debug:
+        #var: sendmail2.yml
+        #subject: "CentOS server update status"
+        #body: |
+         # The following servers were updated successfully:
+        # {% for host in result.changed %}
+        #  - {{ host }}
+         # {% endfor %}
