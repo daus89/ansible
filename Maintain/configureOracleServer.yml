@@ -1,0 +1,29 @@
+---
+- name: Configure Oracle Linux 8 server with local repo server
+  hosts: Oracle_Server
+  gather_facts: true
+  become: true
+
+  tasks:
+    - name: Disable all other repositories
+      yum_repository:
+        name: "*"
+        state: absent
+
+    - name: Configure local repositories
+      yum_repository:
+        name: "{{ item.name }}"
+        baseurl: "{{ item.baseurl }}"
+        gpgkey: "{{ item.gpgkey }}"
+        gpgcheck: 1
+        enabled: 1
+      loop:
+        - { name: "local_ol8_appstream", baseurl: "http://10.28.20.65/OracleRepo/ol8_appstream/", gpgkey: "file:///etc/pki/rpm-gpg/RPM-GPG-KEY-ol8" }
+        - { name: "local_ol8_UEKR6", baseurl: "http://10.28.20.65/OracleRepo/ol8_UEKR6/", gpgkey: "file:///etc/pki/rpm-gpg/RPM-GPG-KEY-ol8" }
+        - { name: "local_ol8_addons", baseurl: "http://10.28.20.65/OracleRepo/ol8_addons/", gpgkey: "file:///etc/pki/rpm-gpg/RPM-GPG-KEY-ol8" }
+        - { name: "local_ol8_baseos_latest", baseurl: "http://10.28.20.65/OracleRepo/ol8_baseos_latest/", gpgkey: "file:///etc/pki/rpm-gpg/RPM-GPG-KEY-ol8" }
+
+    - name: Update repository cache
+      yum:
+        name: "*"
+        update_cache: ye

@@ -1,0 +1,39 @@
+---
+- name: Check user last login and lock if necessary
+  hosts: your_host
+  gather_facts: yes
+
+  vars:
+    telegram_bot_token: "YOUR_TELEGRAM_BOT_TOKEN"
+    telegram_chat_id: "YOUR_TELEGRAM_CHAT_ID"
+    user_to_check: "user_to_check"
+
+  tasks:
+    - name: Get user last login
+      command: "lastlog -u {{ user_to_check }}"
+      register: lastlog_result
+      changed_when: false
+
+    - name: Parse last login date
+      set_fact:
+        last_login_date: "{{ lastlog_result.stdout_lines[1].split()[-3:] | join(' ') }}"
+
+    - name: Calculate days since last login
+      set_fact:
+        days_since_last_login: "{{ (ansible_date_time.date | to_datetime('%Y-%m-%d')) - (last_login_date | to_datetime('%Y-%m-%d')) | int }}"
+
+    - name: Lock user if last login was 60 days ago
+      user:
+        name: "{{ user_to_check }}"
+        state: locked
+      when: days_since_last_login >= 60
+
+    - name: Send Telegram notification
+      uri:
+        url: "https://api.telegram.org/bot{{ telegram_bot_token }}/sendMessage"
+        method: POST
+        body:
+          chat_id: "{{ telegram_chat_id }}"
+          text: "User '{{ user_to_check }}' has been locked due to inactivity."
+        return_content: yes
+      when: days_since_last_login >= 60
