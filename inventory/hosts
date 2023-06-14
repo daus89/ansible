@@ -39,15 +39,15 @@
 
 # Here's another example of host ranges, this time there are no
 # leading 0s:
-## spesify python interpreter for ansible usage
-[all:vars]
-ansible_python_interpreter=/usr/bin/python3
-
 
 ## db-[99:101]-node.example.com
 [dnf]
 #ecr.spa.gov.my ansible_user=ansible
-git.spa.gov.my ansible_user=root
+#git.spa.gov.my ansible_user=root
+#idocker.spa ansible_user=root
+intranet.spa ansible_user=root
+puspanita.dev ansible_user=root
+localrepo.spa ansible_user=root
 #spa9db-dr.spa.gov.my
 #puspanita.dev ansible_user=root
 

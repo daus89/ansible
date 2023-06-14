@@ -1,29 +1,55 @@
 ---
-- name: Configure Oracle Linux 8 server with local repo server
-  hosts: Oracle_Server
+- name: Configure Client to use Local Repo
+  hosts: Oracle-Server
   gather_facts: true
   become: true
 
   tasks:
-    - name: Disable all other repositories
-      yum_repository:
-        name: "*"
-        state: absent
+    - name: Import GPG key
+      shell: |
+        wget https://yum.oracle.com/RPM-GPG-KEY-oracle-ol8 -O /etc/pki/rpm-gpg/RPM-GPG-KEY-ol8
+        gpg --import --import-options show-only /etc/pki/rpm-gpg/RPM-GPG-KEY-ol8
 
-    - name: Configure local repositories
-      yum_repository:
-        name: "{{ item.name }}"
-        baseurl: "{{ item.baseurl }}"
-        gpgkey: "{{ item.gpgkey }}"
-        gpgcheck: 1
-        enabled: 1
-      loop:
-        - { name: "local_ol8_appstream", baseurl: "http://10.28.20.65/OracleRepo/ol8_appstream/", gpgkey: "file:///etc/pki/rpm-gpg/RPM-GPG-KEY-ol8" }
-        - { name: "local_ol8_UEKR6", baseurl: "http://10.28.20.65/OracleRepo/ol8_UEKR6/", gpgkey: "file:///etc/pki/rpm-gpg/RPM-GPG-KEY-ol8" }
-        - { name: "local_ol8_addons", baseurl: "http://10.28.20.65/OracleRepo/ol8_addons/", gpgkey: "file:///etc/pki/rpm-gpg/RPM-GPG-KEY-ol8" }
-        - { name: "local_ol8_baseos_latest", baseurl: "http://10.28.20.65/OracleRepo/ol8_baseos_latest/", gpgkey: "file:///etc/pki/rpm-gpg/RPM-GPG-KEY-ol8" }
+    - name: Disable all existing repositories
+      shell: dnf config-manager --disable ol8*
+  #    register: repolist_output
 
-    - name: Update repository cache
-      yum:
-        name: "*"
-        update_cache: ye
+    #- name: Disable repo
+    #  shell: dnf config-manager --disable {{ item.repo }}
+    #  loop: "{{ repolist_output.stdout_lines }}"
+    #  when: "'ol8_' in item.repo"
+
+    - name: Create a new local repository file
+      shell: touch /etc/yum.repos.d/local-repo.repo
+
+    - name: Configure the new local repository file 
+      blockinfile:
+        path: /etc/yum.repos.d/local-repo.repo
+        block: |
+          [local_ol8_appstream]
+          name=Local Oracle Linux 8 appstream ($basearch)
+          baseurl=http://10.28.20.65/OracleRepo/ol8_appstream/
+          gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-ol8
+          gpgcheck=1
+          enabled=1
+
+          [local_ol8_UEKR6]
+          name=Local Oracle Linux 8 UEKR6 ($basearch)
+          baseurl=http://10.28.20.65/OracleRepo/ol8_UEKR6/
+          gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-ol8
+          gpgcheck=1
+          enabled=1
+
+          [local_ol8_addons]
+          name=Local Oracle Linux 8 addons ($basearch)
+          baseurl=http://10.28.20.65/OracleRepo/ol8_addons/
+          gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-ol8
+          gpgcheck=1
+          enabled=1
+
+          [local_ol8_baseos_latest]
+          name=Local Oracle Linux 8 baseos latest ($basearch)
+          baseurl=http://10.28.20.65/OracleRepo/ol8_baseos_latest/
+          gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-ol8
+          gpgcheck=1
+          enabled=1
