@@ -12,12 +12,6 @@
 
     - name: Disable all existing repositories
       shell: dnf config-manager --disable ol8*
-  #    register: repolist_output
-
-    #- name: Disable repo
-    #  shell: dnf config-manager --disable {{ item.repo }}
-    #  loop: "{{ repolist_output.stdout_lines }}"
-    #  when: "'ol8_' in item.repo"
 
     - name: Create a new local repository file
       shell: touch /etc/yum.repos.d/local-repo.repo
