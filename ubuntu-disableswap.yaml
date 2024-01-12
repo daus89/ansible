@@ -1,0 +1,20 @@
+---
+- name: Disable Swap Space on Ubuntu 22.04
+  hosts: your_target_servers
+  become: yes
+
+  tasks:
+    - name: Disable swap
+      ansible.builtin.command: swapoff -a
+      ignore_errors: yes
+
+    - name: Remove swap entry from /etc/fstab
+      lansible.builtin.lineinfile:
+        path: /etc/fstab
+        state: absent
+        regexp: '^/swapfile'
+
+    - name: Remove swapfile
+      ansible.builtin.file :
+        path: /swapfile
+        state: absent
