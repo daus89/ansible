@@ -1,3 +1,7 @@
+##WORK IN PROGRESS
+
+INTRODUCING ROLES, VARAIBLES, HANDLERS
+
 Check connection to Linux clients
 ```
 ansible -i host -m ping
