@@ -1,0 +1,33 @@
+name: Install Cato Certificate in Ubuntu Servers
+hosts: all
+become: yes
+gather_facts: yes
+
+tasks:
+  
+  - name: Create Cato directory
+    ansible.builtin.file:
+    path: /usr/local/share/ca-certificates/Cato
+    state: directory
+    mode: '0755'
+
+  - name: Download Cato Cert
+    ansible.builtin.get_url:
+      url: https://myvpn.catonetworks.com/public/certificates/CatoNetworksTrustedRootCA.pem 
+      dest: /usr/local/share/ca-certificates/Cato
+
+  
+  - name: Convert Certicate into crt format and install cert
+    ansible.builtin.shell: |
+      openssl x509 -in CatoNetworksTrustedRootCA.pem -out CatoNetworksTrustedRootCA.crt
+      rm -rf CatoNetworksTrustedRootCA.pem
+      update-ca-certificates
+  
+  - name: Install Wazuh Agent in Ubuntu Servers
+    ansible.builtin.get_url:
+      url: http://10.22.9.33/ytlrepo/wazuh-agent_4.7.2-1_amd64.deb
+      dest: /tmp
+      mode: '775'
+  
+  - name: Install Wazuh agent with perimeters
+    ansible.builtin.shell: WAZUH_MANAGER='10.73.0.6' WAZUH_AGENT_NAME='{{ ansible_hostname }}' dpkg -i /tmp/wazuh-agent_4.7.2-1_amd64.deb && systemctl enable --now wazuh-agent

@@ -1,0 +1,23 @@
+#Rotate User for Ubuntu server
+
+- name: Include Ansible vault file of new user's password
+  include_vars: /etc/ansible/vaults/user-password.yaml
+
+- name: Get Local User Account List
+  ansible.builtin.shell: |  
+    for user in $(getent passwd | awk -F: '$3 >= 1000 && $1 !="nobody" {print $1}'); do
+      echo "$user"
+    done           
+  register: user_list
+
+- name: List Local User
+  ansible.builtin.debug:
+    msg: "Local User List: {{ user_list.stdout_lines | join(', ') }}"
+
+- name: Reset the password of the Local User
+  ansible.builtin.expect:
+    command: passwd "{{ item }}"
+    responses:
+      New password: "{{ rotation_password }}"
+      Retype new password: "{{ rotation_password }}"
+  with_items: "{{ user_list.stdout_lines }}"

@@ -1,0 +1,32 @@
+- name: Include vaults file
+  include_vars: /etc/ansible/vaults/new-password.yaml
+  vars: 
+    users_to_create:
+    - name: pfadm
+    - name: svcAnsible
+
+- name: Check if the user pfadm and svcAnsible already created
+  ansible.builtin.shell: id "{{ item.name }}"
+  loop: "{{ users_to_create }}"
+  register: user_check
+  ignore_errors: true
+
+- name: Create the users if they are not exists
+  ansible.builtin.user:
+    name: "{{ item.name }}"
+    state: present
+    password: "{{ new-password }}"
+    group: sudo
+  loop: "{{ users_to_create }}"
+  when: user_check.rc != 0
+
+- name: List of existing Local Account
+  ansible.builtin.shell: |
+    for user in $(getent passwd | awl -F: '$3 >= 1000 $$ $1 !="nobody" {print $1}'); do
+      echo "$user"
+    done
+  register: user_list
+
+- name: Display Existing Local User Account
+  ansible.builtin.debug:
+    msg: "Local User List: {{ user_list.stdout_lines | join(',')}}"
